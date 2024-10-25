@@ -1,0 +1,24 @@
+{
+  "name": "workout-tracker",
+  "version": "1.0.0",
+  "description": "A simple web app to track workouts and progress",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trevorswan11/workout-tracker.git"
+  },
+  "keywords": [
+    "fitness",
+    "timer",
+    "tracker"
+  ],
+  "author": "Trevor Swan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/trevorswan11/workout-tracker/issues"
+  },
+  "homepage": "https://github.com/trevorswan11/workout-tracker#readme"
+}
