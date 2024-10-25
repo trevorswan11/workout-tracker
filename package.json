@@ -20,5 +20,10 @@
   "bugs": {
     "url": "https://github.com/trevorswan11/workout-tracker/issues"
   },
-  "homepage": "https://github.com/trevorswan11/workout-tracker#readme"
+  "homepage": "https://github.com/trevorswan11/workout-tracker#readme",
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "express": "^4.21.1",
+    "sqlite3": "^5.1.7"
+  }
 }
