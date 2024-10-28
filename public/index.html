@@ -1,83 +1,225 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Workout Tracker</title>
-  <style>
-    body { font-family: Arial, sans-serif; }
-    .timer { font-size: 2em; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .timer {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            text-align: center;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 80%;
+        }
+
+        h1,
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        input {
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px;
+            font-size: 16px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .actions {
+            margin-bottom: 20px;
+        }
+
+        .actions button {
+            margin-right: 10px;
+        }
+    </style>
 </head>
+
 <body>
-  <h1>Workout Tracker</h1>
-  <div class="timer">
-    <span id="time">00:00:00</span>
-    <button id="start">Start</button>
-    <button id="stop">Stop</button>
-  </div>
+    <div class="container">
+        <h1>Workout Tracker</h1>
 
-  <h2>Log a Workout</h2>
-  <form id="workout-form">
-    <label for="exercise">Exercise:</label>
-    <input type="text" id="exercise" required>
-    <label for="duration">Duration (minutes):</label>
-    <input type="number" id="duration" required>
-    <button type="submit">Add Workout</button>
-  </form>
+        <h2>Timer</h2>
+        <div class="timer">
+            <span id="time">00:00:00:000</span>
+        </div>
+        <button id="start">Start</button>
+        <button id="stop">Stop</button>
+        <button id="reset">Reset</button>
+        <p>
+        <table id="workout-table">
+            <thead>
+                <tr>
+                    <th>Workout Name</th>
+                    <th>Date (MM/DD/YY)</th>
+                    <th>Set 1</th>
+                    <th>Set 2</th>
+                    <th>Set 3</th>
+                    <th>Set 4</th>
+                    <th>Set 5</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input type="text" placeholder="Exercise Name"></td>
+                    <td><input type="text" placeholder="MM/DD/YY" value=""></td>
+                    <td><input type="text" placeholder="Weight/Reps"></td>
+                    <td><input type="text" placeholder="Weight/Reps"></td>
+                    <td><input type="text" placeholder="Weight/Reps"></td>
+                    <td><input type="text" placeholder="Weight/Reps"></td>
+                    <td><input type="text" placeholder="Weight/Reps"></td>
+                </tr>
+            </tbody>
+        </table>
 
-  <h2>Workout History</h2>
-  <ul id="workout-list"></ul>
+        <div class="actions">
+            <button id="add-row">Add Row</button>
+            <button id="remove-row">Remove Row</button>
+            <button id="save-data">Save Data</button>
+        </div>
 
-  <script>
-    let timerInterval;
-    let elapsedTime = 0;
+    </div>
 
-    document.getElementById('start').addEventListener('click', () => {
-      if (!timerInterval) {
-        const startTime = Date.now() - elapsedTime;
-        timerInterval = setInterval(() => {
-          elapsedTime = Date.now() - startTime;
-          document.getElementById('time').textContent = new Date(elapsedTime).toISOString().substr(11, 8);
-        }, 1000);
-      }
-    });
+    <script>
+        // Timer functionality
+        let timerInterval;
+        let elapsedTime = 0;
 
-    document.getElementById('stop').addEventListener('click', () => {
-      clearInterval(timerInterval);
-      timerInterval = null;
-    });
+        const timeDisplay = document.getElementById('time');
+        const startButton = document.getElementById('start');
+        const stopButton = document.getElementById('stop');
+        const resetButton = document.getElementById('reset');
 
-    document.getElementById('workout-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const exercise = document.getElementById('exercise').value;
-      const duration = document.getElementById('duration').value;
+        startButton.addEventListener('click', () => {
+            if (!timerInterval) {
+                const startTime = Date.now() - elapsedTime;
+                timerInterval = setInterval(() => {
+                    elapsedTime = Date.now() - startTime;
+                    const time = new Date(elapsedTime);
+                    const hours = String(time.getUTCHours()).padStart(2, '0');
+                    const minutes = String(time.getUTCMinutes()).padStart(2, '0');
+                    const seconds = String(time.getUTCSeconds()).padStart(2, '0');
+                    const milliseconds = String(time.getUTCMilliseconds()).padStart(3, '0');
+                    timeDisplay.textContent = `${hours}:${minutes}:${seconds}:${milliseconds}`;
+                }, 10);
+            }
+        });
 
-      const response = await fetch('/api/workouts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ exercise, duration })
-      });
+        stopButton.addEventListener('click', () => {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        });
 
-      if (response.ok) {
-        loadWorkouts();
-      }
-    });
+        resetButton.addEventListener('click', () => {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            elapsedTime = 0;
+            timeDisplay.textContent = '00:00:00:000';
+        });
 
-    async function loadWorkouts() {
-      const response = await fetch('/api/workouts');
-      const workouts = await response.json();
-      const workoutList = document.getElementById('workout-list');
-      workoutList.innerHTML = '';
-      workouts.forEach(workout => {
-        const li = document.createElement('li');
-        li.textContent = `${workout.date}: ${workout.exercise} - ${workout.duration} min`;
-        workoutList.appendChild(li);
-      });
-    }
+        // Function to add a new row to the table
+        document.getElementById('add-row').addEventListener('click', () => {
+            const table = document.getElementById('workout-table').getElementsByTagName('tbody')[0];
+            const newRow = table.insertRow();
 
-    loadWorkouts();
-  </script>
+            const workoutCell = newRow.insertCell(0);
+            workoutCell.innerHTML = '<input type="text" placeholder="Exercise Name">';
+
+            const dateCell = newRow.insertCell(1);
+            dateCell.innerHTML = '<input type="text" placeholder="MM/DD/YY">';
+
+            for (let i = 2; i <= 6; i++) {
+                const setCell = newRow.insertCell(i);
+                setCell.innerHTML = '<input type="text" placeholder="Weight/Reps">';
+            }
+        });
+
+        // Function to remove the last row from the table
+        document.getElementById('remove-row').addEventListener('click', () => {
+            const table = document.getElementById('workout-table').getElementsByTagName('tbody')[0];
+            if (table.rows.length > 1) {
+                table.deleteRow(-1);
+            }
+        });
+
+        // Function to save the data from the table
+        document.getElementById('save-data').addEventListener('click', async () => {
+            const table = document.getElementById('workout-table').getElementsByTagName('tbody')[0];
+            const rows = Array.from(table.rows).map(row => {
+                return {
+                    workoutName: row.cells[0].getElementsByTagName('input')[0].value,
+                    date: row.cells[1].getElementsByTagName('input')[0].value,
+                    sets: [
+                        row.cells[2].getElementsByTagName('input')[0].value,
+                        row.cells[3].getElementsByTagName('input')[0].value,
+                        row.cells[4].getElementsByTagName('input')[0].value,
+                        row.cells[5].getElementsByTagName('input')[0].value,
+                        row.cells[6].getElementsByTagName('input')[0].value
+                    ]
+                };
+            });
+
+            const response = await fetch('/api/saveWorkouts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(rows)
+            });
+
+            if (response.ok) {
+                alert('Data saved successfully!');
+            } else {
+                alert('Failed to save data.');
+            }
+        });
+    </script>
 </body>
-</html>
 
+</html>
