@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workout Tracker</title>
+  <style>
+    body { font-family: Arial, sans-serif; }
+    .timer { font-size: 2em; }
+  </style>
+</head>
+<body>
+  <h1>Workout Tracker</h1>
+  <div class="timer">
+    <span id="time">00:00:00</span>
+    <button id="start">Start</button>
+    <button id="stop">Stop</button>
+  </div>
+
+  <h2>Log a Workout</h2>
+  <form id="workout-form">
+    <label for="exercise">Exercise:</label>
+    <input type="text" id="exercise" required>
+    <label for="duration">Duration (minutes):</label>
+    <input type="number" id="duration" required>
+    <button type="submit">Add Workout</button>
+  </form>
+
+  <h2>Workout History</h2>
+  <ul id="workout-list"></ul>
+
+  <script>
+    let timerInterval;
+    let elapsedTime = 0;
+
+    document.getElementById('start').addEventListener('click', () => {
+      if (!timerInterval) {
+        const startTime = Date.now() - elapsedTime;
+        timerInterval = setInterval(() => {
+          elapsedTime = Date.now() - startTime;
+          document.getElementById('time').textContent = new Date(elapsedTime).toISOString().substr(11, 8);
+        }, 1000);
+      }
+    });
+
+    document.getElementById('stop').addEventListener('click', () => {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    });
+
+    document.getElementById('workout-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const exercise = document.getElementById('exercise').value;
+      const duration = document.getElementById('duration').value;
+
+      const response = await fetch('/api/workouts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ exercise, duration })
+      });
+
+      if (response.ok) {
+        loadWorkouts();
+      }
+    });
+
+    async function loadWorkouts() {
+      const response = await fetch('/api/workouts');
+      const workouts = await response.json();
+      const workoutList = document.getElementById('workout-list');
+      workoutList.innerHTML = '';
+      workouts.forEach(workout => {
+        const li = document.createElement('li');
+        li.textContent = `${workout.date}: ${workout.exercise} - ${workout.duration} min`;
+        workoutList.appendChild(li);
+      });
+    }
+
+    loadWorkouts();
+  </script>
+</body>
+</html>
+
